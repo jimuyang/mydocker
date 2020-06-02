@@ -4,42 +4,39 @@ import (
 	"fmt"
 	"mydocker/container"
 
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
-var RunCommand = cli.Command{
+var runCommand = cli.Command{
 	Name: "run",
-	Usage: `create a container with namespace and cgroups limit
+	Usage: `Create a container with namespace and cgroups limit
 			mydocker run -ti [command]`,
-
 	Flags: []cli.Flag{
 		cli.BoolFlag{
 			Name:  "ti",
 			Usage: "enable tty",
 		},
 	},
-
-	Action: func(ctx *cli.Context) error {
-		if len(ctx.Args()) < 1 {
+	Action: func(context *cli.Context) error {
+		if len(context.Args()) < 1 {
 			return fmt.Errorf("Missing container command")
 		}
-		var cmdArray []string
-		for _, arg := range ctx.Args() {
-			cmdArray = append(cmdArray, arg)
-		}
-		tty := ctx.Bool("ti")
-		Run(tty, cmdArray)
+		cmd := context.Args().Get(0)
+		tty := context.Bool("ti")
+		Run(tty, cmd)
 		return nil
 	},
 }
 
-var InitCommand = cli.Command{
+var initCommand = cli.Command{
 	Name:  "init",
 	Usage: "Init container process run user's process in container. Do not call it outside",
 	Action: func(context *cli.Context) error {
-		logrus.Infof("init come on")
-		err := container.RunContainerInitProcess()
+		log.Infof("init come on")
+		cmd := context.Args().Get(0)
+		log.Infof("command %s", cmd)
+		err := container.RunContainerInitProcess(cmd, nil)
 		return err
 	},
 }
